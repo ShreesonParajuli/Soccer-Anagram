@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Soccer Anagram Game</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+
+
+  <h1>Soccer Anagram Game ⚽</h1>
+
+<img src="https://www.shutterstock.com/editorial/image-editorial/O8D6kaxcNcjaM347MzU3Mg==/cristiano-ronaldo-real-madrid-balances-ball-on-440nw-8856274an.jpg" alt="Cristiano Ronaldo Real Madrid Balances Ball Editorial Stock Photo - Stock  Image | Shutterstock Editorial"/>
+  <img src="{{ url_for('static', filename='soccerball.png') }}" alt="Soccer Ball" class="background-ball">
+
+  <div id="scrambled" data-answer="">{{ scrambled }}</div>
+
+  <form id="guess-form">
+    <input type="text" id="guess" placeholder="Your guess" autocomplete="off">
+    <button type="submit" id="submit-btn">Submit</button>
+  </form>
+
+  <div>
+    <button id="start-btn">Start</button>
+    <button id="end-btn">End</button>
+  </div>
+
+  <div class="status">
+    <div>Score: <span id="score">{{ score }}</span></div>
+    <div>Time: <span id="timer">30</span>s</div>
+  </div>
+
+  <div id="result"></div>
+
+  <script>
+    const scrambledDiv = document.getElementById("scrambled");
+    const guessForm = document.getElementById("guess-form");
+    const guessInput = document.getElementById("guess");
+    const submitBtn = document.getElementById("submit-btn");
+    const startBtn = document.getElementById("start-btn");
+    const endBtn = document.getElementById("end-btn");
+    const resultDiv = document.getElementById("result");
+    const scoreSpan = document.getElementById("score");
+    const timerSpan = document.getElementById("timer");
+//Used Ai to create a timer
+    let timer;
+    let timeLeft = 30;
+
+    function startTimer() {
+      clearInterval(timer);
+      timeLeft = 30;
+      timerSpan.textContent = timeLeft;
+      timer = setInterval(() => {
+        timeLeft--;
+        timerSpan.textContent = timeLeft;
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          showResult("Time's up! The correct word was '" + scrambledDiv.dataset.answer + "'.");
+          getNextWord();
+        }
+      }, 1000);
+    }
+
+    function showResult(message) {
+      resultDiv.textContent = message;
+      setTimeout(() => {
+        resultDiv.textContent = "";
+      }, 3000);
+    }
+
+    function getNextWord() {
+      fetch("/", { method: "GET" })
+        .then((response) => response.text())
+        .then((html) => {
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, "text/html");
+          const newScrambled = doc.getElementById("scrambled").textContent;
+          scrambledDiv.textContent = newScrambled;
+          scrambledDiv.dataset.answer = doc.getElementById("scrambled").dataset.answer || "";
+          guessInput.value = "";
+          guessInput.disabled = false;
+          submitBtn.disabled = false;
+          guessInput.focus();
+          startTimer();
+        });
+    }
+
+    guessForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const guess = guessInput.value;
+
+      fetch("/guess", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ guess })
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.error) {
+            showResult(data.error);
+            return;
+          }
+
+          scrambledDiv.textContent = data.scrambled;
+          scrambledDiv.dataset.answer = data.word || "";
+          scoreSpan.textContent = data.score;
+          showResult(data.result);
+          guessInput.value = "";
+          startTimer();
+        });
+    });
+// Used Ai to make it clickable
+    startBtn.addEventListener("click", function () {
+      startBtn.disabled = true;
+      endBtn.disabled = false;
+      guessInput.disabled = false;
+      submitBtn.disabled = false;
+      getNextWord();
+      startTimer();
+    });
+
+    endBtn.addEventListener("click", function () {
+      clearInterval(timer);
+      scrambledDiv.textContent = "---";
+      scrambledDiv.dataset.answer = "";
+      guessInput.value = "";
+      guessInput.disabled = true;
+      submitBtn.disabled = true;
+      startBtn.disabled = false;
+      endBtn.disabled = true;
+      timerSpan.textContent = "0";
+      showResult("Game ended.");
+    });
+
+    window.onload = () => {
+      guessInput.disabled = true;
+      submitBtn.disabled = true;
+      endBtn.disabled = true;
+      startBtn.disabled = false;
+      timerSpan.textContent = "0";
+    };
+  </script>
+
+</body>
+</html>
