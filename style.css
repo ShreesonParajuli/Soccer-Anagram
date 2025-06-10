@@ -1,3 +1,5 @@
+//Used ai for the background color and fonts
+
 body {
   background: #121212;
   color: #e0e0e0;
@@ -18,7 +20,7 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 80px;       
+  width: 80px;
   opacity: 0.08;
   z-index: 0;
   pointer-events: none;
@@ -85,3 +87,4 @@ button:disabled, input:disabled {
   font-weight: bold;
   color: #ccc;
 }
+
