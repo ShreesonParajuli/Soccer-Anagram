@@ -5,15 +5,12 @@
   <title>Soccer Anagram Game</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+<img src="https://static.vecteezy.com/system/resources/thumbnails/042/681/782/small/illustration-of-cute-cartoon-goat-on-white-vector.jpg" alt="Goat Cartoon Vector Art, Icons, and Graphics for Free Download"/>
 <body>
 
 
 
   <h1>Soccer Anagram Game ⚽</h1>
-
-<img src="https://www.shutterstock.com/editorial/image-editorial/O8D6kaxcNcjaM347MzU3Mg==/cristiano-ronaldo-real-madrid-balances-ball-on-440nw-8856274an.jpg" alt="Cristiano Ronaldo Real Madrid Balances Ball Editorial Stock Photo - Stock  Image | Shutterstock Editorial"/>
-  <img src="{{ url_for('static', filename='soccerball.png') }}" alt="Soccer Ball" class="background-ball">
-
   <div id="scrambled" data-answer="">{{ scrambled }}</div>
 
   <form id="guess-form">
@@ -101,7 +98,7 @@
             showResult(data.error);
             return;
           }
-
+//Used AI
           scrambledDiv.textContent = data.scrambled;
           scrambledDiv.dataset.answer = data.word || "";
           scoreSpan.textContent = data.score;
